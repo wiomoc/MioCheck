@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "893908873281",
+    "firebase_url": "https://miocheck-ec48f.firebaseio.com",
+    "project_id": "miocheck-ec48f",
+    "storage_bucket": "miocheck-ec48f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:893908873281:android:e6c9b07a196bd9d3fd16c0",
+        "android_client_info": {
+          "package_name": "de.wiomoc.miocheck"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "893908873281-nl18uv4n6mp17ag7ov1guklre166raa2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArHqEhMP4j0CUfSU1Gw31DmJbvDuBZx_U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "893908873281-nl18uv4n6mp17ag7ov1guklre166raa2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

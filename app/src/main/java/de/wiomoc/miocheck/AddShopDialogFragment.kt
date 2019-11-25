@@ -1,0 +1,30 @@
+package de.wiomoc.miocheck
+
+import android.app.Dialog
+import android.os.Bundle
+import android.widget.EditText
+import android.widget.Switch
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.DialogFragment
+import org.koin.android.ext.android.inject
+
+class AddShopDialogFragment : DialogFragment() {
+
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val view = activity!!.layoutInflater.inflate(R.layout.dialog_add_shop, null)
+
+        return AlertDialog.Builder(context!!)
+            .setView(view)
+            .setPositiveButton("Add") { dialogInterface, _ ->
+                val dbService by inject<AvailabilityService>()
+                val name = view.findViewById<EditText>(R.id.shop_name).text.toString()
+                val status = if (view.findViewById<Switch>(R.id.available).isChecked) Status.AVAILABLE else Status.EMPTY
+                dbService.addShop(ShopStatus(null, name, status))
+                dialogInterface.dismiss()
+            }
+            .create()
+    }
+
+
+}
