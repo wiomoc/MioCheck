@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:title="Add Shop" android:icon="@drawable/ic_add" android:id="@+id/menu_add_shop"
+    <item android:title="@string/fragment_availability_add_shop_menu"
+          android:icon="@drawable/ic_add"
+          android:id="@+id/fragment_availability_add_shop"
           app:showAsAction="always"/>
 </menu>

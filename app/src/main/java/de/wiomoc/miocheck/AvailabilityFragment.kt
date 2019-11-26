@@ -1,6 +1,5 @@
 package de.wiomoc.miocheck
 
-import android.content.Context
 import android.os.Bundle
 import android.view.*
 import android.widget.ImageView
@@ -10,6 +9,8 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.firebase.ui.database.FirebaseListAdapter
 import com.firebase.ui.database.FirebaseListOptions
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_availability.*
 import org.koin.android.ext.android.inject
 import java.text.DateFormat
 
@@ -17,7 +18,7 @@ import java.text.DateFormat
 class AvailabilityFragment : Fragment() {
     lateinit var adapter: FirebaseListAdapter<ShopStatus>
 
-    val dateTimeFormatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM)
+    private val dateTimeFormatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,39 +27,39 @@ class AvailabilityFragment : Fragment() {
         val notificationService by inject<NotificationService>()
         val dbService by inject<AvailabilityService>()
 
-        val dbShopStatus = dbService.shopStatus()
-
         adapter = object : FirebaseListAdapter<ShopStatus>(
             FirebaseListOptions.Builder<ShopStatus>()
-                .setQuery(dbShopStatus.limitToFirst(50), ShopStatusParser())
-                .setLayout(R.layout.item_shop)
+                .setQuery(dbService.getShopStatuses(), ShopStatusParser)
+                .setLayout(R.layout.item_availability_shop)
+                .setLifecycleOwner(this)
                 .build()
         ) {
             override fun populateView(view: View, item: ShopStatus, position: Int) {
                 view.apply {
-                    findViewById<TextView>(R.id.item_shop_name).text = item.name
-                    findViewById<TextView>(R.id.item_last_changed).text = dateTimeFormatter.format(item.lastChanged)
-                    findViewById<Switch>(R.id.item_available).apply {
+                    findViewById<TextView>(R.id.item_availability_shop_shop_name_tat).text = item.name
+                    findViewById<TextView>(R.id.item_availability_shop_last_changed_tat).text =
+                        dateTimeFormatter.format(item.lastChanged)
+                    findViewById<Switch>(R.id.item_availability_shop_available_switch).apply {
                         setOnCheckedChangeListener(null)
                         isChecked = item.status == Status.AVAILABLE
-                        setOnCheckedChangeListener { compoundButton, checked ->
+                        setOnCheckedChangeListener { _, checked ->
                             dbService.changeStatus(item.id!!, if (checked) Status.AVAILABLE else Status.EMPTY)
                         }
                     }
-                    findViewById<ImageView>(R.id.item_alarm).apply {
-                        var subscibed = notificationService.hasSubscripedToTopic(item.id!!)
+                    findViewById<ImageView>(R.id.item_availability_shop_alarm_image).apply {
+                        var subscribed = notificationService.hasSubscribedToTopic(item.id!!)
 
-                        setImageResource(if (subscibed) R.drawable.ic_alarm_off else R.drawable.ic_alarm_add)
+                        setImageResource(if (subscribed) R.drawable.ic_alarm_off else R.drawable.ic_alarm_add)
 
                         setOnClickListener {
-                            if (subscibed) {
+                            if (subscribed) {
                                 notificationService.unsubscribeToNotification(item.id!!)
                                 setImageResource(R.drawable.ic_alarm_add)
-                                subscibed = false
+                                subscribed = false
                             } else {
                                 notificationService.subscribeToNotification(item.id!!)
                                 setImageResource(R.drawable.ic_alarm_off)
-                                subscibed = true
+                                subscribed = true
                             }
                         }
                     }
@@ -73,17 +74,23 @@ class AvailabilityFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_availability, container, false).apply {
-            findViewById<ListView>(R.id.list_shops).adapter = adapter
+            findViewById<ListView>(R.id.fragment_availability_shops_list).adapter = adapter
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        adapter.startListening()
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.fragment_availability, menu)
     }
 
-    override fun onStop() {
-        super.onStop()
-        adapter.stopListening()
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.fragment_availability_add_shop -> {
+            navigateAddShop()
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
+    }
+
+    private fun navigateAddShop() {
+        AddShopDialogFragment().show(fragmentManager!!, "add")
     }
 }

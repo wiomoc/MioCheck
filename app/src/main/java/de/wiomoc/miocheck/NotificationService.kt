@@ -9,14 +9,14 @@ class NotificationService(
     val context: Context
 ) {
 
-    fun hasSubscripedToTopic(id: String) = preferences.hasSubscripedToTopic(id)
+    fun hasSubscribedToTopic(id: String) = preferences.hasSubscribedToTopic(id)
 
     fun subscribeToNotification(id: String) {
         FirebaseMessaging.getInstance().subscribeToTopic(id)
             .addOnCompleteListener { task ->
                 preferences.addSubscription(id)
 
-                Toast.makeText(context, "Subscribed", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, R.string.notification_subscribed, Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -24,7 +24,7 @@ class NotificationService(
         FirebaseMessaging.getInstance().unsubscribeFromTopic(id)
             .addOnCompleteListener { task ->
                 preferences.removeSubscription(id)
-                Toast.makeText(context, "Unsubscribed", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, R.string.notification_unsubscribed, Toast.LENGTH_SHORT).show()
             }
     }
 

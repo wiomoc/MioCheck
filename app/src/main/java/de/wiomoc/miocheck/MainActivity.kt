@@ -7,12 +7,14 @@ import android.os.Bundle
 import android.view.ContextMenu
 import android.view.MenuItem
 import android.view.View
+import android.view.Window
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentStatePagerAdapter
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
 import kotlinx.android.synthetic.main.activity_main.*
 import com.google.firebase.auth.FirebaseAuth
+import org.koin.android.ext.android.inject
 
 
 class MainActivity : AppCompatActivity() {
@@ -23,6 +25,12 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+
+        val connectionService by inject<ConnectionService>()
+
+        connectionService.onConnected {
+            toolbar_progress.visibility = if (it) View.GONE else View.VISIBLE
+        }
 
         pager.adapter =
             object : FragmentStatePagerAdapter(supportFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
@@ -35,8 +43,8 @@ class MainActivity : AppCompatActivity() {
                 override fun getCount() = 2
 
                 override fun getPageTitle(position: Int) = when (position) {
-                    0 -> "Availability"
-                    1 -> "Locker"
+                    0 -> getString(R.string.page_title_availability)
+                    1 -> getString(R.string.page_title_locker)
                     else -> throw IllegalArgumentException()
                 }
             }
@@ -73,27 +81,8 @@ class MainActivity : AppCompatActivity() {
                 val user = FirebaseAuth.getInstance().currentUser
                 // ...
             } else {
-                // Sign in failed. If response is null the user canceled the
-                // sign-in flow using the back button. Otherwise check
-                // response.getError().getErrorCode() and handle the error.
-                // ...
+
             }
         }
-    }
-
-    override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
-        menuInflater.inflate(R.menu.activity_main, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.menu_add_shop -> {
-            navigateAddShop()
-            true
-        }
-        else -> super.onOptionsItemSelected(item)
-    }
-
-    private fun navigateAddShop() {
-        AddShopDialogFragment().show(supportFragmentManager, "add")
     }
 }

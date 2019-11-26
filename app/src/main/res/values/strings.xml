@@ -3,4 +3,14 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="page_title_availability">Availability</string>
+    <string name="page_title_locker">Locker</string>
+    <string name="locker_available">Available</string>
+    <string name="locker_credit">Credit</string>
+    <string name="locker_take">Take</string>
+    <string name="locker_add">Add</string>
+    <string name="notification_subscribed">Subscribed</string>
+    <string name="notification_unsubscribed">Unsubscribed</string>
+    <string name="fragment_availability_add_shop_menu">Add Shop</string>
+    <string name="fragment_availability_alarm_menu">Notify</string>
 </resources>

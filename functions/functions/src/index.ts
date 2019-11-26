@@ -18,41 +18,59 @@ export const sendAvailiablityNotification = functions.region("europe-west1")
 
 export const newAccount = functions.region("europe-west1").auth.user().onCreate(async (user, context) => {
     await admin.database().ref("/account").child(user.uid).set({
-        balance: 0
+        balance: 0,
+        name: user.displayName
     })
 });
 
-export const addMio = functions.region("europe-west1")
+export const mioTransaction = functions.region("europe-west1")
     .https.onCall(async (data, context) => {
         if (!context.auth) return;
 
-        await admin.database().ref("/locker/inventory").transaction(inventory => {
-            return inventory + 1
-        });
+        const {change} = data;
 
-        await admin.database().ref("/account/" + context.auth.uid + "/balance").transaction(balance => {
-            return balance + 1;
-        });
+        const uid = context.auth.uid;
 
-        return true
-
-    });
-
-export const takeMio = functions.region("europe-west1")
-    .https.onCall(async (data, context) => {
-        if (!context.auth) return;
 
         await admin.database().ref("/locker/inventory").transaction(inventory => {
-            if (inventory === 0) {
-                return
+            if (inventory === null) return 0;
+            if (inventory + change < 0) {
+                return;
             }
 
-            return inventory - 1
+            return inventory + change
         });
 
-        await admin.database().ref("/account/" + context.auth.uid + "/balance").transaction(balance => {
-            return balance - 1;
-        });
+        const {snapshot} = await admin.database().ref("/account/" + uid + "/balance")
+            .transaction(balance => {
+                return balance + change;
+            });
 
-        return true
+        if (!snapshot) {
+            return false;
+        }
+
+        const newBalance = snapshot.val();
+
+        const promiseBag = [];
+
+        if (newBalance < 2 && change < 0) {
+            promiseBag.push(admin.messaging().sendToTopic("inventoryLow", {
+                notification: {
+                    title: "MIO is running empty",
+                    body: `MIO is running empty, only ${newBalance} available in Locker`
+                }
+            }));
+        }
+
+        promiseBag.push(admin.database().ref("/history").push().set({
+            newBalance: newBalance,
+            change: change,
+            timestamp: Date.now(),
+            user: uid
+        }));
+
+        await Promise.all(promiseBag as Promise<any>[]);
+
+        return true;
     });

@@ -13,14 +13,15 @@ class MioApplication : Application() {
         val appModule = module {
             single { Preferences(get()) }
             single { NotificationService(get(), get()) }
-            single { AvailabilityService() }
-            single { LockerService() }
+            single { AvailabilityService(get()) }
+            single { LockerService(get(), get()) }
+            single { ConnectionService(get()) }
         }
 
         startKoin {
             androidLogger()
             androidContext(this@MioApplication)
-            modules(appModule)
+            modules(listOf(appModule, firebaseModule))
         }
     }
 }

@@ -8,12 +8,12 @@
             android:hint="Shopname"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/shop_name"
+            android:id="@+id/dialog_add_shop_shop_name_edittext"
             android:layout_margin="20dp"/>
     <Switch
             android:text="Available"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
-            android:id="@+id/available"/>
+            android:id="@+id/dialog_add_shop_available_switch"/>
 </LinearLayout>

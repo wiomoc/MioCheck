@@ -18,13 +18,11 @@ class AddShopDialogFragment : DialogFragment() {
             .setView(view)
             .setPositiveButton("Add") { dialogInterface, _ ->
                 val dbService by inject<AvailabilityService>()
-                val name = view.findViewById<EditText>(R.id.shop_name).text.toString()
-                val status = if (view.findViewById<Switch>(R.id.available).isChecked) Status.AVAILABLE else Status.EMPTY
+                val name = view.findViewById<EditText>(R.id.dialog_add_shop_shop_name_edittext).text.toString()
+                val status = if (view.findViewById<Switch>(R.id.dialog_add_shop_available_switch).isChecked) Status.AVAILABLE else Status.EMPTY
                 dbService.addShop(ShopStatus(null, name, status))
                 dialogInterface.dismiss()
             }
             .create()
     }
-
-
 }

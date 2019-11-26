@@ -22,7 +22,7 @@ class Preferences(context: Context) {
         writeTopics()
     }
 
-    fun hasSubscripedToTopic(id: String) = subscribedTopics.contains(id)
+    fun hasSubscribedToTopic(id: String) = subscribedTopics.contains(id)
 
     private fun writeTopics() {
         preferences.edit().putStringSet(TOPICS_PREF_KEY, subscribedTopics).apply()

@@ -7,26 +7,26 @@
         android:layout_height="match_parent"
         tools:context=".MainActivity">
 
-
     <TextView
             tools:text="4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="45sp"
             android:textStyle="bold"
-            android:id="@+id/locker_available" android:layout_marginTop="8dp"
+            android:id="@+id/locker_available_txt" android:layout_marginTop="8dp"
             app:layout_constraintTop_toTopOf="parent" app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginEnd="8dp" android:layout_marginRight="8dp"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp"/>
     <TextView
-            android:text="Available"
+            android:text="@string/locker_available"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/label_available" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
+            android:id="@+id/label_available_label" app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginLeft="8dp" android:layout_marginStart="8dp" android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/locker_available"/>
+            app:layout_constraintTop_toBottomOf="@+id/locker_available_txt"/>
 
     <TextView
             tools:text="4"
@@ -34,35 +34,36 @@
             android:layout_height="wrap_content"
             android:textSize="45sp"
             android:textStyle="bold"
-            android:id="@+id/account_credit"
+            android:id="@+id/locker_account_credit_txt"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginEnd="8dp" android:layout_marginRight="8dp"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="8dp"
-            android:layout_marginStart="8dp" app:layout_constraintTop_toBottomOf="@+id/label_available"/>
+            android:layout_marginStart="8dp" app:layout_constraintTop_toBottomOf="@+id/label_available_label"/>
     <TextView
-            android:text="Credit"
+            android:text="@string/locker_credit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/label_credit" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
+            android:id="@+id/locker_account_credit_label" app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginLeft="8dp" android:layout_marginStart="8dp" android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/account_credit"/>
+            app:layout_constraintTop_toBottomOf="@+id/locker_account_credit_txt"/>
     <Button
-            android:text="Add"
+            android:text="@string/locker_add"
             android:layout_width="100dp"
             android:textSize="30sp"
             android:layout_height="wrap_content"
-            android:id="@+id/button_add" android:layout_marginTop="64dp"
-            app:layout_constraintTop_toBottomOf="@+id/label_credit"
+            android:id="@+id/locker_add_button" android:layout_marginTop="64dp"
+            app:layout_constraintTop_toBottomOf="@+id/locker_account_credit_label"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="80dp"
             android:layout_marginStart="80dp"/>
     <Button
-            android:text="Take"
+            android:text="@string/locker_take"
             android:textSize="30sp"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:id="@+id/button_take" android:layout_marginTop="64dp"
-            app:layout_constraintTop_toBottomOf="@+id/label_credit"
+            android:id="@+id/locker_take_button" android:layout_marginTop="64dp"
+            app:layout_constraintTop_toBottomOf="@+id/locker_account_credit_label"
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="80dp"
             android:layout_marginRight="80dp"/>
 
