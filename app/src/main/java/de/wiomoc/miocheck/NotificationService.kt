@@ -24,7 +24,8 @@ class NotificationService(
         FirebaseMessaging.getInstance().unsubscribeFromTopic(id)
             .addOnCompleteListener { task ->
                 preferences.removeSubscription(id)
-                Toast.makeText(context, R.string.notification_unsubscribed, Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, R.string.notification_unsubscribed, Toast.LENGTH_SHORT)
+                    .show()
             }
     }
 

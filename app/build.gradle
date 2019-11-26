@@ -37,6 +37,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:19.2.0'
     implementation 'com.google.firebase:firebase-functions:19.0.1'
 
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
 
     implementation 'org.koin:koin-android:2.0.1'
 

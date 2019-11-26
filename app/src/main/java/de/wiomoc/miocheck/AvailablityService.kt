@@ -1,7 +1,8 @@
 package de.wiomoc.miocheck
 
 import com.firebase.ui.database.SnapshotParser
-import com.google.firebase.database.*
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseReference
 import java.util.*
 
 enum class Status {

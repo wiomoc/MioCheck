@@ -2,18 +2,14 @@ package de.wiomoc.miocheck
 
 import android.app.Activity
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.ContextMenu
-import android.view.MenuItem
 import android.view.View
-import android.view.Window
-import androidx.fragment.app.Fragment
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentStatePagerAdapter
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
-import kotlinx.android.synthetic.main.activity_main.*
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.android.ext.android.inject
 
 
@@ -33,7 +29,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         pager.adapter =
-            object : FragmentStatePagerAdapter(supportFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+            object : FragmentStatePagerAdapter(
+                supportFragmentManager,
+                BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT
+            ) {
                 override fun getItem(position: Int) = when (position) {
                     0 -> AvailabilityFragment()
                     1 -> LockerFragment()
