@@ -8,10 +8,19 @@ android:
     - android-29
     - extra
 
+before_install: |
+  openssl aes-256-cbc \
+  -K $encrypted_8b3bd3f612ae_key \
+  -iv $encrypted_8b3bd3f612ae_iv \
+  -in sec/miocheck-google-creds.json.enc \
+  -out sec/miocheck-google-creds.json -d
+
 script: ./gradlew build
 
 deploy:
   provider: script
-  script: ./gradlew assembleRelease appDistributionUploadRelease
+  skip_cleanup: true
+  script: export GOOGLE_APPLICATION_CREDENTIALS="$PWD/sec/miocheck-google-creds.json" && ./gradlew assembleRelease appDistributionUploadRelease
+  cleanup: false
   on:
     branch: master
