@@ -5,16 +5,9 @@ import android.os.Bundle
 import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.components.YAxis
-import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.formatter.ValueFormatter
 import kotlinx.android.synthetic.main.fragment_locker.*
 import org.koin.android.ext.android.inject
-import java.text.SimpleDateFormat
-import java.util.*
+import java.util.stream.Collectors
 
 
 class LockerFragment : Fragment() {
@@ -58,72 +51,24 @@ class LockerFragment : Fragment() {
         }
 
         locker_history_chart.apply {
-            setViewPortOffsets(0f, 0f, 0f, 0f)
-            lockerService.subscribeHistoryChange(this@LockerFragment) { history ->
-                val dataSet = LineDataSet(
-                    history.map { Entry(it.timestamp.toFloat(), it.inventory.toFloat()) },
-                    getString(R.string.locker_available)
+            animation.duration = 2000
+            gradientFillColors =
+                intArrayOf(
+                    Color.parseColor("#B09841"),
+                    Color.TRANSPARENT
                 )
 
-                dataSet.apply {
-                    mode = LineDataSet.Mode.HORIZONTAL_BEZIER;
-                    fillAlpha = 255;
-                    fillColor = resources.getColor(R.color.colorAccent);
-                    setDrawFilled(true)
-                    setDrawValues(false)
-                    color = fillColor
-                    setDrawCircles(false)
-                }
+            lockerService.subscribeHistoryChange(this@LockerFragment) { history ->
+                val lineSet = linkedMapOf<String, Float>()
+                history.map { it.timestamp.toString() to it.inventory.toFloat() }.toMap(lineSet)
 
-                data = LineData(dataSet)
-                invalidate()
-
-                data.isHighlightEnabled = false
-            }
-            description = null
-
-            setTouchEnabled(true)
-
-            dragDecelerationFrictionCoef = 0.9f
-
-            isDragEnabled = true
-            setScaleEnabled(true)
-            setDrawGridBackground(false)
-            isHighlightPerDragEnabled = true
-
-
-            // get the legend (only possible after setting data)
-            legend.isEnabled = false
-
-            xAxis.position = XAxis.XAxisPosition.TOP_INSIDE
-            xAxis.textSize = 10f
-            xAxis.textColor = Color.WHITE
-            xAxis.setDrawAxisLine(false)
-            xAxis.setDrawGridLines(false)
-            xAxis.textColor = Color.BLACK
-            xAxis.setCenterAxisLabels(true)
-            xAxis.granularity = 1f
-
-            xAxis.valueFormatter = object :
-                ValueFormatter() {
-                private val format = SimpleDateFormat("dd MMM HH:mm")
-
-                override fun getFormattedValue(value: Float): String {
-                    return format.format(Date(value.toLong()))
-                }
+                animate(lineSet)
             }
 
-            val leftAxis = axisLeft
-            leftAxis.setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART)
-            leftAxis.setDrawGridLines(true)
-            leftAxis.isGranularityEnabled = true
-            leftAxis.axisMinimum = 0f
-            leftAxis.textColor = Color.BLACK
-            leftAxis.yOffset = -5f
-
-            axisRight.isEnabled = false
         }
+
     }
+
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.fragment_locker, menu)

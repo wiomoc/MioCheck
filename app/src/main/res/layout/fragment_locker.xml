@@ -83,13 +83,18 @@
             app:layout_constraintStart_toEndOf="@+id/locker_add_button"
             app:layout_constraintTop_toBottomOf="@+id/locker_account_credit_label" />
 
-    <com.github.mikephil.charting.charts.LineChart
+    <com.db.williamchart.view.LineChartView
             android:id="@+id/locker_history_chart"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/locker_take_button"
-            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:chart_smoothLine= "true"
+            app:chart_axis="none"
+            app:chart_lineColor="#B09841"
+            app:chart_lineThickness="3dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
