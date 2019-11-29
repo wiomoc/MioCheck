@@ -7,7 +7,6 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_locker.*
 import org.koin.android.ext.android.inject
-import java.util.stream.Collectors
 
 
 class LockerFragment : Fragment() {
@@ -51,7 +50,7 @@ class LockerFragment : Fragment() {
         }
 
         locker_history_chart.apply {
-            animation.duration = 2000
+            animation.duration = 0
             gradientFillColors =
                 intArrayOf(
                     Color.parseColor("#B09841"),
@@ -60,11 +59,11 @@ class LockerFragment : Fragment() {
 
             lockerService.subscribeHistoryChange(this@LockerFragment) { history ->
                 val lineSet = linkedMapOf<String, Float>()
-                history.map { it.timestamp.toString() to it.inventory.toFloat() }.toMap(lineSet)
+                history.map { it.timestamp.toString() to it.inventory.toFloat() }.takeLast(20)
+                    .toMap(lineSet)
 
                 animate(lineSet)
             }
-
         }
 
     }
