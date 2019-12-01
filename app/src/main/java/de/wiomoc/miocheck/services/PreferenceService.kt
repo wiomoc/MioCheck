@@ -1,8 +1,8 @@
-package de.wiomoc.miocheck
+package de.wiomoc.miocheck.services
 
 import android.content.Context
 
-class Preferences(context: Context) {
+class PreferenceService(context: Context) {
     val preferences = context.getSharedPreferences("mio", Context.MODE_PRIVATE)
 
     val TOPICS_PREF_KEY = "topics"

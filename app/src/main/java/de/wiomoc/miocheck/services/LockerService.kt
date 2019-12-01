@@ -1,4 +1,4 @@
-package de.wiomoc.miocheck
+package de.wiomoc.miocheck.services
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
@@ -7,6 +7,7 @@ import androidx.lifecycle.OnLifecycleEvent
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.functions.FirebaseFunctions
+import java.util.concurrent.TimeUnit
 
 class LockerService(
     private val dbReference: DatabaseReference,
@@ -31,13 +32,15 @@ class LockerService(
 
         companion object {
             fun start(lifecycleOwner: LifecycleOwner, query: Query, cb: (snapshot: DataSnapshot) -> Unit) {
-                val listener = LifecycleAwareValueEventListener(query, object : ValueEventListener {
-                    override fun onCancelled(p0: DatabaseError) {}
+                val listener = LifecycleAwareValueEventListener(
+                    query,
+                    object : ValueEventListener {
+                        override fun onCancelled(p0: DatabaseError) {}
 
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        cb(snapshot)
-                    }
-                })
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            cb(snapshot)
+                        }
+                    })
 
                 lifecycleOwner.lifecycle.let {
                     if (it.currentState == Lifecycle.State.STARTED) {
@@ -49,13 +52,15 @@ class LockerService(
         }
     }
 
-    fun addMio() {
-        functions.getHttpsCallable("mioTransaction").call(mapOf("change" to 1))
-    }
+    private fun mioTransaction(change: Int) =
+        functions.getHttpsCallable("mioTransaction")
+            .withTimeout(6, TimeUnit.SECONDS)
+            .call(mapOf("change" to change))
 
-    fun takeMio() {
-        functions.getHttpsCallable("mioTransaction").call(mapOf("change" to -1))
-    }
+
+    fun addMio() = mioTransaction(1)
+
+    fun takeMio() = mioTransaction(-1)
 
     fun subscribeInventoryChange(owner: LifecycleOwner, cb: ((Long) -> Unit)) {
         LifecycleAwareValueEventListener.start(
@@ -91,7 +96,7 @@ class LockerService(
             owner,
             dbReference
                 .child("history")
-                .limitToLast(50)
+                .limitToLast(20)
                 .orderByChild("timestamp")
         ) {
             cb(it.children.map {
@@ -99,6 +104,15 @@ class LockerService(
                 val inventory = it.child("newInventory").getValue(Long::class.java)!!
                 HistoryEntry(timestamp, inventory)
             })
+        }
+    }
+
+    fun subscribeLockPinChange(owner: LifecycleOwner, cb: (String) -> Unit) {
+        LifecycleAwareValueEventListener.start(
+            owner,
+            dbReference.child("lockPin")
+        ) {
+            cb(it.value.toString())
         }
     }
 }

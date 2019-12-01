@@ -1,4 +1,4 @@
-package de.wiomoc.miocheck
+package de.wiomoc.miocheck.services
 
 import com.firebase.ui.database.SnapshotParser
 import com.google.firebase.database.DataSnapshot
@@ -30,9 +30,9 @@ class AvailabilityService(private val dbReference: DatabaseReference) {
         child("lastChanged").setValue(shopStatus.lastChanged.time)
     }
 
-    fun changeStatus(shop: String, status: Status) = shopStatus().child(shop).apply {
-        child("status").setValue(status)
+    fun changeStatus(shop: String, status: Status) = shopStatus().child(shop).run {
         child("lastChanged").setValue(Date().time)
+        child("status").setValue(status)
     }
 }
 

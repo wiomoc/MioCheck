@@ -1,4 +1,4 @@
-package de.wiomoc.miocheck
+package de.wiomoc.miocheck.services
 
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError

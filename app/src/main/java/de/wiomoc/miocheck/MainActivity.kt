@@ -5,10 +5,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentStatePagerAdapter
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.auth.FirebaseAuth
+import de.wiomoc.miocheck.services.ConnectionService
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.android.ext.android.inject
 
@@ -33,7 +36,7 @@ class MainActivity : AppCompatActivity() {
                 supportFragmentManager,
                 BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT
             ) {
-                override fun getItem(position: Int) = when (position) {
+                override fun getItem(position: Int): Fragment = when (position) {
                     0 -> AvailabilityFragment()
                     1 -> LockerFragment()
                     else -> throw IllegalArgumentException()
@@ -52,7 +55,7 @@ class MainActivity : AppCompatActivity() {
         navigateToLoginIfNecessary()
     }
 
-    fun navigateToLoginIfNecessary() {
+    private fun navigateToLoginIfNecessary() {
         if (FirebaseAuth.getInstance().currentUser == null) {
             val providers = arrayListOf(
                 AuthUI.IdpConfig.EmailBuilder().build(),

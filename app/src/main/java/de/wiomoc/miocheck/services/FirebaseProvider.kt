@@ -1,4 +1,4 @@
-package de.wiomoc.miocheck
+package de.wiomoc.miocheck.services
 
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.functions.FirebaseFunctions

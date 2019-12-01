@@ -1,6 +1,7 @@
 package de.wiomoc.miocheck
 
 import android.app.Application
+import de.wiomoc.miocheck.services.*
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -11,8 +12,8 @@ class MioApplication : Application() {
         super.onCreate()
 
         val appModule = module {
-            single { Preferences(get()) }
-            single { NotificationService(get(), get()) }
+            single { PreferenceService(get()) }
+            single { PushMessageService(get(), get()) }
             single { AvailabilityService(get()) }
             single { LockerService(get(), get()) }
             single { ConnectionService(get()) }

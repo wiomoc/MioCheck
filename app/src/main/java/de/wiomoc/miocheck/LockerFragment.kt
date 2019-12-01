@@ -5,14 +5,16 @@ import android.os.Bundle
 import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import de.wiomoc.miocheck.services.LockerService
+import de.wiomoc.miocheck.services.PushMessageService
 import kotlinx.android.synthetic.main.fragment_locker.*
 import org.koin.android.ext.android.inject
 
 
-class LockerFragment : Fragment() {
+class LockerFragment : Fragment(), NetworkErrorSnackbarMixin {
 
     private val lockerService by inject<LockerService>()
-    private val notificationService by inject<NotificationService>()
+    private val notificationService by inject<PushMessageService>()
 
     private val INVENTORY_LOW_TOPIC = "inventoryLow"
 
@@ -42,24 +44,24 @@ class LockerFragment : Fragment() {
         }
 
         takeButton.setOnClickListener {
-            lockerService.takeMio()
+            lockerService.takeMio().addOnFailureListener(this)
         }
 
         locker_add_button.setOnClickListener {
-            lockerService.addMio()
+            lockerService.addMio().addOnFailureListener(this)
         }
 
         locker_history_chart.apply {
             animation.duration = 0
             gradientFillColors =
                 intArrayOf(
-                    Color.parseColor("#B09841"),
+                    resources.getColor(R.color.colorAccent),
                     Color.TRANSPARENT
                 )
 
             lockerService.subscribeHistoryChange(this@LockerFragment) { history ->
                 val lineSet = linkedMapOf<String, Float>()
-                history.map { it.timestamp.toString() to it.inventory.toFloat() }.takeLast(20)
+                history.map { it.timestamp.toString() to it.inventory.toFloat() }
                     .toMap(lineSet)
 
                 animate(lineSet)
@@ -82,10 +84,21 @@ class LockerFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.fragment_locker_alarm -> {
-            if (notificationService.hasSubscribedToTopic(INVENTORY_LOW_TOPIC))
+            if (notificationService.hasSubscribedToTopic(INVENTORY_LOW_TOPIC)) {
                 notificationService.unsubscribeToNotification(INVENTORY_LOW_TOPIC)
-            else
+                    .addOnSuccessListener {
+                        item.setIcon(R.drawable.ic_alarm_add)
+                    }
+            } else {
                 notificationService.subscribeToNotification(INVENTORY_LOW_TOPIC)
+                    .addOnSuccessListener {
+                        item.setIcon(R.drawable.ic_alarm_off)
+                    }
+            }.addOnFailureListener(this)
+            true
+        }
+        R.id.fragment_locker_info -> {
+            BottomSheetFragment().show(fragmentManager!!, "1312dsa")
             true
         }
         else -> super.onOptionsItemSelected(item)

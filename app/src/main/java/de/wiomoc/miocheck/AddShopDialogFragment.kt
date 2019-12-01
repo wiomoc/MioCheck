@@ -6,6 +6,9 @@ import android.widget.EditText
 import android.widget.Switch
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
+import de.wiomoc.miocheck.services.AvailabilityService
+import de.wiomoc.miocheck.services.ShopStatus
+import de.wiomoc.miocheck.services.Status
 import org.koin.android.ext.android.inject
 
 class AddShopDialogFragment : DialogFragment() {
