@@ -18,5 +18,4 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
                 fragment_bottom_view_lock_txt.text = it
             }
         }
-
 }

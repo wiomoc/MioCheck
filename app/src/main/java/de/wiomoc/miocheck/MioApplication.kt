@@ -13,9 +13,10 @@ class MioApplication : Application() {
 
         val appModule = module {
             single { PreferenceService(get()) }
-            single { PushMessageService(get(), get()) }
+            single { PushMessageService(get()) }
             single { AvailabilityService(get()) }
             single { LockerService(get(), get()) }
+            single { UserService(get()) }
             single { ConnectionService(get()) }
         }
 

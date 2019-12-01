@@ -10,7 +10,6 @@ import de.wiomoc.miocheck.services.PushMessageService
 import kotlinx.android.synthetic.main.fragment_locker.*
 import org.koin.android.ext.android.inject
 
-
 class LockerFragment : Fragment(), NetworkErrorSnackbarMixin {
 
     private val lockerService by inject<LockerService>()

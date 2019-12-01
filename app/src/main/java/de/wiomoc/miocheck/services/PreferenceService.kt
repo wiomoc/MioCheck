@@ -11,7 +11,6 @@ class PreferenceService(context: Context) {
         preferences.getStringSet(TOPICS_PREF_KEY, mutableSetOf())!!
     }
 
-
     fun addSubscription(id: String) {
         subscribedTopics.add(id)
         writeTopics()

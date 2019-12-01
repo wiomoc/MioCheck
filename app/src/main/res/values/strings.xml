@@ -15,4 +15,5 @@
     <string name="fragment_availability_alarm_menu">Notify</string>
     <string name="network_failure_snackbar_message">Failed to execute action</string>
     <string name="info">Info</string>
+    <string name="menu_add_locker">Add Locker</string>
 </resources>

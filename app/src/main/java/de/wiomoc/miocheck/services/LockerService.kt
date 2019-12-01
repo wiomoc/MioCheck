@@ -1,9 +1,6 @@
 package de.wiomoc.miocheck.services
 
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.OnLifecycleEvent
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.functions.FirebaseFunctions
@@ -13,44 +10,6 @@ class LockerService(
     private val dbReference: DatabaseReference,
     private val functions: FirebaseFunctions
 ) {
-
-    class LifecycleAwareValueEventListener private constructor(
-        private val query: Query,
-        private val valueEventListener: ValueEventListener
-    ) :
-        LifecycleObserver {
-
-        @OnLifecycleEvent(Lifecycle.Event.ON_START)
-        fun onStart() {
-            query.addValueEventListener(valueEventListener)
-        }
-
-        @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-        fun onStop() {
-            query.removeEventListener(valueEventListener)
-        }
-
-        companion object {
-            fun start(lifecycleOwner: LifecycleOwner, query: Query, cb: (snapshot: DataSnapshot) -> Unit) {
-                val listener = LifecycleAwareValueEventListener(
-                    query,
-                    object : ValueEventListener {
-                        override fun onCancelled(p0: DatabaseError) {}
-
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            cb(snapshot)
-                        }
-                    })
-
-                lifecycleOwner.lifecycle.let {
-                    if (it.currentState == Lifecycle.State.STARTED) {
-                        listener.onStart()
-                    }
-                    it.addObserver(listener)
-                }
-            }
-        }
-    }
 
     private fun mioTransaction(change: Int) =
         functions.getHttpsCallable("mioTransaction")

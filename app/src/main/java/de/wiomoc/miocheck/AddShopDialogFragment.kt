@@ -12,8 +12,6 @@ import de.wiomoc.miocheck.services.Status
 import org.koin.android.ext.android.inject
 
 class AddShopDialogFragment : DialogFragment() {
-
-
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val view = activity!!.layoutInflater.inflate(R.layout.dialog_add_shop, null)
 
