@@ -65,7 +65,7 @@ class AvailabilityFragment : Fragment(), NetworkErrorSnackbarMixin {
                                             fragment_availability_layout,
                                             R.string.notification_unsubscribed,
                                             Snackbar.LENGTH_SHORT
-                                        )
+                                        ).show()
                                         setImageResource(R.drawable.ic_alarm_add)
                                         subscribed = false
                                     }.addOnFailureListener(this@AvailabilityFragment)
@@ -75,10 +75,10 @@ class AvailabilityFragment : Fragment(), NetworkErrorSnackbarMixin {
                                     .addOnSuccessListener {
                                         Snackbar.make(
                                             fragment_availability_layout,
-                                            R.string.notification_unsubscribed,
+                                            R.string.notification_subscribed,
                                             Snackbar.LENGTH_SHORT
-                                        )
-                                        setImageResource(R.drawable.ic_alarm_add)
+                                        ).show()
+                                        setImageResource(R.drawable.ic_alarm_off)
                                         subscribed = true
                                     }.addOnFailureListener(this@AvailabilityFragment)
                             }

@@ -98,7 +98,7 @@ class LockerFragment : Fragment(), NetworkErrorSnackbarMixin {
             true
         }
         R.id.fragment_locker_info -> {
-            BottomSheetFragment().show(fragmentManager!!, "1312dsa")
+            BottomSheetFragment().show(fragmentManager!!, "sheet")
             true
         }
         else -> super.onOptionsItemSelected(item)
