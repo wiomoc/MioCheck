@@ -12,12 +12,13 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.lifecycle.Observer
 import com.firebase.ui.auth.AuthUI
-import com.firebase.ui.auth.IdpResponse
 import com.firebase.ui.database.FirebaseListAdapter
 import com.firebase.ui.database.FirebaseListOptions
 import com.google.firebase.auth.FirebaseAuth
 import de.wiomoc.miocheck.services.ConnectionService
+import de.wiomoc.miocheck.services.LockerId
 import de.wiomoc.miocheck.services.UserService
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.android.ext.android.inject
@@ -65,6 +66,12 @@ class MainActivity : AppCompatActivity() {
         navigateToLoginIfNecessary()
     }
 
+    private fun updateToolbarSelection(adapter: FirebaseListAdapter<String>, id: LockerId?) {
+        (0 until adapter.count)
+            .firstOrNull { adapter.getRef(it).key == id }
+            ?.let { toolbar_spinner.setSelection(it) }
+    }
+
     private fun createToolbarInvolvedLockerSpinner() {
         val userService by inject<UserService>()
 
@@ -77,6 +84,11 @@ class MainActivity : AppCompatActivity() {
                 .setLayout(R.layout.item_toolbar_spinner_header)
                 .build()
         ) {
+
+            override fun onDataChanged() {
+                super.onDataChanged()
+                updateToolbarSelection(this, userService.selectedLockerId.value)
+            }
 
             override fun getCount(): Int {
                 val lockerCount = super.getCount()
@@ -110,13 +122,22 @@ class MainActivity : AppCompatActivity() {
 
         toolbar_spinner.adapter = adapter
 
+        userService.selectedLockerId.observe(this,
+            Observer<LockerId> { id -> updateToolbarSelection(adapter, id) })
+
+        // onItemSelected is called automatically at start. Use `first` to check if onItemSelected is
+        // called the first time, to skip any actions
+        var first = true
         toolbar_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(p0: AdapterView<*>?) {
             }
 
             override fun onItemSelected(adapterView: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
-                if (position != adapter.count - 1)
-                    println(adapter.getRef(position).key)
+                if (position != adapter.count - 1 && !first) {
+                    userService.selectLocker(adapter.getRef(position).key!!)
+                } else {
+                    first = false
+                }
             }
 
         }
@@ -144,7 +165,7 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == RC_SIGN_IN) {
-            val response = IdpResponse.fromResultIntent(data)
+            // val response = IdpResponse.fromResultIntent(data)
 
             if (resultCode == Activity.RESULT_OK) {
                 createToolbarInvolvedLockerSpinner()

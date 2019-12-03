@@ -1,6 +1,7 @@
 package de.wiomoc.miocheck.services
 
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.functions.FirebaseFunctions
@@ -8,13 +9,15 @@ import java.util.concurrent.TimeUnit
 
 class LockerService(
     private val dbReference: DatabaseReference,
-    private val functions: FirebaseFunctions
+    private val functions: FirebaseFunctions,
+    private val userService: UserService,
+    private val auth: FirebaseAuth
 ) {
 
     private fun mioTransaction(change: Int) =
         functions.getHttpsCallable("mioTransaction")
             .withTimeout(6, TimeUnit.SECONDS)
-            .call(mapOf("change" to change))
+            .call(mapOf("lockerId" to userService.selectedLockerId.value!!, "change" to change))
 
 
     fun addMio() = mioTransaction(1)
@@ -34,7 +37,7 @@ class LockerService(
 
 
     fun subscribeBalanceChange(owner: LifecycleOwner, cb: ((Long) -> Unit)) {
-        FirebaseAuth.getInstance().currentUser?.let { user ->
+        auth.currentUser?.let { user ->
             LifecycleAwareValueEventListener.start(
                 owner,
                 dbReference
@@ -45,7 +48,6 @@ class LockerService(
                 cb((it.value ?: 0L) as Long)
             }
         }
-
     }
 
     data class HistoryEntry(val timestamp: Long, val inventory: Long)
@@ -66,12 +68,19 @@ class LockerService(
         }
     }
 
-    fun subscribeLockPinChange(owner: LifecycleOwner, cb: (String) -> Unit) {
-        LifecycleAwareValueEventListener.start(
-            owner,
-            dbReference.child("lockPin")
-        ) {
-            cb(it.value.toString())
-        }
+    fun subscribeLockPinChange(owner: LifecycleOwner, cb: ((String) -> Unit)) {
+        var subscription: LifecycleAwareValueEventListener? = null
+        userService.selectedLockerId.observe(owner, Observer<LockerId> { id ->
+            subscription?.stop()
+            subscription = LifecycleAwareValueEventListener.start(
+                owner,
+                dbReference
+                    .child("locker")
+                    .child(id)
+                    .child("pin")
+            ) {
+                cb(it.value.toString())
+            }
+        })
     }
 }

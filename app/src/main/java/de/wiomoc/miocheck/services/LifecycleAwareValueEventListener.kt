@@ -16,12 +16,12 @@ class LifecycleAwareValueEventListener private constructor(
     LifecycleObserver {
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    fun onStart() {
+    internal fun onStart() {
         query.addValueEventListener(valueEventListener)
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    fun onStop() {
+    internal fun onStop() {
         query.removeEventListener(valueEventListener)
     }
 
@@ -30,8 +30,12 @@ class LifecycleAwareValueEventListener private constructor(
         source.lifecycle.removeObserver(this)
     }
 
+    fun stop() {
+        query.removeEventListener(valueEventListener)
+    }
+
     companion object {
-        fun start(lifecycleOwner: LifecycleOwner, query: Query, cb: (snapshot: DataSnapshot) -> Unit) {
+        fun start(lifecycleOwner: LifecycleOwner, query: Query, cb: (snapshot: DataSnapshot) -> Unit): LifecycleAwareValueEventListener {
             val listener = LifecycleAwareValueEventListener(
                 query,
                 object : ValueEventListener {
@@ -48,6 +52,7 @@ class LifecycleAwareValueEventListener private constructor(
                 }
                 it.addObserver(listener)
             }
+            return listener
         }
     }
 }

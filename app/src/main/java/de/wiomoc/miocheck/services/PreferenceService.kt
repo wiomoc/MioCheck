@@ -3,9 +3,14 @@ package de.wiomoc.miocheck.services
 import android.content.Context
 
 class PreferenceService(context: Context) {
-    val preferences = context.getSharedPreferences("mio", Context.MODE_PRIVATE)
+    private val preferences = context.getSharedPreferences("mio", Context.MODE_PRIVATE)!!
 
     val TOPICS_PREF_KEY = "topics"
+    val SELECTED_LOCKER_PREF_KEY = "locker"
+
+    var selectedLockerId: String?
+        get() = preferences.getString(SELECTED_LOCKER_PREF_KEY, null)
+        set(value) = preferences.edit().putString(SELECTED_LOCKER_PREF_KEY, value).apply()
 
     val subscribedTopics by lazy {
         preferences.getStringSet(TOPICS_PREF_KEY, mutableSetOf())!!

@@ -3,6 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.appdistribution'
+apply plugin: 'kotlin-kapt'
 
 def getGitMessage = { ->
     def stdout = new ByteArrayOutputStream()
@@ -66,6 +67,11 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:20.0.1'
     implementation 'com.google.firebase:firebase-auth:19.2.0'
     implementation 'com.google.firebase:firebase-functions:19.0.1'
+
+    def lifecycle_version = "2.1.0"
+
+    implementation "androidx.lifecycle:lifecycle-livedata:$lifecycle_version"
+    kapt "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
 
     implementation 'com.diogobernardino:williamchart:3.2.0'
 
