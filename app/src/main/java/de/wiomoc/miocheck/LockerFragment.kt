@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import de.wiomoc.miocheck.services.LockerService
 import de.wiomoc.miocheck.services.PushMessageService
 import kotlinx.android.synthetic.main.fragment_locker.*
@@ -33,14 +34,14 @@ class LockerFragment : Fragment(), NetworkErrorSnackbarMixin {
         super.onStart()
 
         val takeButton = locker_take_button
-        lockerService.subscribeBalanceChange(this) {
+        lockerService.balance.observe(this, Observer<Long> {
             view!!.findViewById<TextView>(R.id.locker_account_credit_txt).text = it.toString()
-        }
+        })
 
-        lockerService.subscribeInventoryChange(this) {
+        lockerService.inventory.observe(this, Observer<Long> {
             view!!.findViewById<TextView>(R.id.locker_available_txt).text = it.toString()
             takeButton.isEnabled = it > 0
-        }
+        })
 
         takeButton.setOnClickListener {
             lockerService.takeMio().addOnFailureListener(this)
@@ -58,13 +59,13 @@ class LockerFragment : Fragment(), NetworkErrorSnackbarMixin {
                     Color.TRANSPARENT
                 )
 
-            lockerService.subscribeHistoryChange(this@LockerFragment) { history ->
+            lockerService.history.observe(this@LockerFragment, Observer<List<LockerService.HistoryEntry>> { history ->
                 val lineSet = linkedMapOf<String, Float>()
                 history.map { it.timestamp.toString() to it.inventory.toFloat() }
                     .toMap(lineSet)
 
                 animate(lineSet)
-            }
+            })
         }
 
     }

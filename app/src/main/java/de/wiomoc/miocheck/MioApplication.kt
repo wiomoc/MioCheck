@@ -16,7 +16,7 @@ class MioApplication : Application() {
             single { PushMessageService(get()) }
             single { AvailabilityService(get()) }
             single { LockerService(get(), get(), get(), get()) }
-            single { UserService(get(), get(), get()) }
+            single { UserService(get(), get(), get(), get()) }
             single { ConnectionService(get()) }
         }
 

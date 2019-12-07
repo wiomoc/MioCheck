@@ -1,9 +1,11 @@
 package de.wiomoc.miocheck
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +18,7 @@ import androidx.lifecycle.Observer
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.database.FirebaseListAdapter
 import com.firebase.ui.database.FirebaseListOptions
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import de.wiomoc.miocheck.services.ConnectionService
 import de.wiomoc.miocheck.services.LockerId
@@ -26,6 +29,8 @@ import kotlin.math.min
 
 class MainActivity : AppCompatActivity() {
     val RC_SIGN_IN = 1
+
+    val userService by inject<UserService>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,17 +69,38 @@ class MainActivity : AppCompatActivity() {
         createToolbarInvolvedLockerSpinner()
 
         navigateToLoginIfNecessary()
+
+        if (intent?.action == Intent.ACTION_VIEW) {
+            intent?.data?.let { handleUrlViewAction(it) }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+
+        if (intent.action == Intent.ACTION_VIEW) {
+            intent.data?.let { handleUrlViewAction(it) }
+        }
+    }
+
+    private fun handleUrlViewAction(uri: Uri) {
+        val pathSegments = uri.pathSegments
+        if (pathSegments.size != 2) return
+        if (pathSegments[0] != "i") return
+        val invitationCode = pathSegments[1]
+
+        userService.acceptInvitation(invitationCode).addOnSuccessListener {
+            Snackbar.make(coordinator, R.string.snackbar_joined_locker, Snackbar.LENGTH_SHORT).show()
+        }
     }
 
     private fun updateToolbarSelection(adapter: FirebaseListAdapter<String>, id: LockerId?) {
-        (0 until adapter.count)
+        (0 until adapter.count - 1)
             .firstOrNull { adapter.getRef(it).key == id }
             ?.let { toolbar_spinner.setSelection(it) }
     }
 
     private fun createToolbarInvolvedLockerSpinner() {
-        val userService by inject<UserService>()
-
         val involvedLockers = userService.getInvolvedLockers() ?: return
 
         val adapter = object : FirebaseListAdapter<String>(
@@ -84,7 +110,6 @@ class MainActivity : AppCompatActivity() {
                 .setLayout(R.layout.item_toolbar_spinner_header)
                 .build()
         ) {
-
             override fun onDataChanged() {
                 super.onDataChanged()
                 updateToolbarSelection(this, userService.selectedLockerId.value)
@@ -126,11 +151,10 @@ class MainActivity : AppCompatActivity() {
             Observer<LockerId> { id -> updateToolbarSelection(adapter, id) })
 
         // onItemSelected is called automatically at start. Use `first` to check if onItemSelected is
-        // called the first time, to skip any actions
+        // called the first time, to skip any not user intended actions
         var first = true
         toolbar_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(p0: AdapterView<*>?) {
-            }
+            override fun onNothingSelected(p0: AdapterView<*>?) {}
 
             override fun onItemSelected(adapterView: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
                 if (position != adapter.count - 1 && !first) {
@@ -139,7 +163,6 @@ class MainActivity : AppCompatActivity() {
                     first = false
                 }
             }
-
         }
     }
 

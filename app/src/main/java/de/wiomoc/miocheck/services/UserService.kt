@@ -6,11 +6,13 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.functions.FirebaseFunctions
 
 typealias LockerId = String
 
 class UserService(
     private val dbReference: DatabaseReference,
+    private val functions: FirebaseFunctions,
     private val preferenceService: PreferenceService,
     private val auth: FirebaseAuth
 ) {
@@ -61,5 +63,16 @@ class UserService(
                 .child(user.uid)
                 .child("locker")
                 .orderByValue()
+        }
+
+    fun acceptInvitation(invitationCode: String) = functions
+        .getHttpsCallable("acceptInvitation")
+        .call(mapOf("invitationCode" to invitationCode))
+        .addOnSuccessListener {
+            val data = it.data
+            if (data is Map<*, *>) {
+                val lockerId = data["lockerId"]
+                selectLocker(lockerId!!.toString())
+            }
         }
 }

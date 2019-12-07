@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "de.wiomoc.miocheck",
+      "sha256_cert_fingerprints": [
+        "EB:55:47:31:5C:B7:C7:22:B6:F5:1D:57:78:A8:EA:A8:94:E8:A0:B3:B0:E2:F1:41:C6:B6:CD:C7:B3:A5:54:98"
+      ]
+    }
+  }
+]

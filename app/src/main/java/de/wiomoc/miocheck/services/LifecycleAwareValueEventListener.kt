@@ -1,9 +1,6 @@
 package de.wiomoc.miocheck.services
 
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.*
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.Query
@@ -35,7 +32,11 @@ class LifecycleAwareValueEventListener private constructor(
     }
 
     companion object {
-        fun start(lifecycleOwner: LifecycleOwner, query: Query, cb: (snapshot: DataSnapshot) -> Unit): LifecycleAwareValueEventListener {
+        fun start(
+            lifecycleOwner: LifecycleOwner,
+            query: Query,
+            cb: (snapshot: DataSnapshot) -> Unit
+        ): LifecycleAwareValueEventListener {
             val listener = LifecycleAwareValueEventListener(
                 query,
                 object : ValueEventListener {
@@ -56,3 +57,30 @@ class LifecycleAwareValueEventListener private constructor(
         }
     }
 }
+
+inline fun <T> Query.toLiveData(noinline transformer: (DataSnapshot) -> T) = FirebaseLiveData(this, transformer)
+
+class FirebaseLiveData<T>(private val query: Query, transformer: (DataSnapshot) -> T) : LiveData<T>() {
+    private val valueEventListener: FirebaseLiveDataEventListener
+
+    init {
+        valueEventListener = FirebaseLiveDataEventListener(transformer)
+    }
+
+    override fun onActive() {
+        query.addValueEventListener(valueEventListener)
+    }
+
+    override fun onInactive() {
+        query.removeEventListener(valueEventListener)
+    }
+
+    inner class FirebaseLiveDataEventListener(private val transformer: (DataSnapshot) -> T) : ValueEventListener {
+        override fun onCancelled(p0: DatabaseError) {}
+
+        override fun onDataChange(snapshot: DataSnapshot) {
+            postValue(transformer(snapshot))
+        }
+    }
+}
+

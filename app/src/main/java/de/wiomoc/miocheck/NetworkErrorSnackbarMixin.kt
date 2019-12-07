@@ -8,6 +8,6 @@ import java.lang.Exception
 interface NetworkErrorSnackbarMixin : OnFailureListener {
     override fun onFailure(p0: Exception) {
         val fragment = (this as Fragment)
-        Snackbar.make(fragment.view!!, R.string.network_failure_snackbar_message, Snackbar.LENGTH_LONG).show()
+        Snackbar.make(fragment.view!!, R.string.snackbar_network_failure, Snackbar.LENGTH_LONG).show()
     }
 }
