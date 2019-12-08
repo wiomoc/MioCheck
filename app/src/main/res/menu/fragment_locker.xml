@@ -3,11 +3,11 @@
 
     <item android:title="@string/fragment_availability_alarm_menu"
           android:icon="@drawable/ic_alarm_add"
-          android:id="@+id/fragment_locker_alarm"
+          android:id="@+id/fragment_locker_menu_alarm"
           app:showAsAction="always"/>
 
     <item android:title="@string/menu_info"
           android:icon="@drawable/ic_info"
-          android:id="@+id/fragment_locker_info"
+          android:id="@+id/fragment_locker_menu_info"
           app:showAsAction="always"/>
 </menu>

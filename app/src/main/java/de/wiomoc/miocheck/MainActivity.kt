@@ -1,6 +1,5 @@
 package de.wiomoc.miocheck
 
-import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -29,6 +28,7 @@ import kotlin.math.min
 
 class MainActivity : AppCompatActivity() {
     val RC_SIGN_IN = 1
+    val SPINNER_ID_ADD_LOCKER = 0L
 
     val userService by inject<UserService>()
 
@@ -37,7 +37,6 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-        supportActionBar!!.setDisplayShowTitleEnabled(false)
 
         val connectionService by inject<ConnectionService>()
 
@@ -112,7 +111,15 @@ class MainActivity : AppCompatActivity() {
         ) {
             override fun onDataChanged() {
                 super.onDataChanged()
-                updateToolbarSelection(this, userService.selectedLockerId.value)
+                if (super.getCount() > 0) {
+                    updateToolbarSelection(this, userService.selectedLockerId.value)
+                    toolbar_spinner.visibility = View.VISIBLE
+                    supportActionBar!!.setDisplayShowTitleEnabled(false)
+
+                } else {
+                    toolbar_spinner.visibility = View.GONE
+                    supportActionBar!!.setDisplayShowTitleEnabled(true)
+                }
             }
 
             override fun getCount(): Int {
@@ -126,7 +133,7 @@ class MainActivity : AppCompatActivity() {
             override fun getItemId(i: Int) = if (i != super.getCount())
                 super.getItemId(i)
             else
-                0
+                SPINNER_ID_ADD_LOCKER
 
             override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup?) =
                 layoutInflater.inflate(R.layout.item_toolbar_spinner, parent, false).also {
@@ -156,8 +163,10 @@ class MainActivity : AppCompatActivity() {
         toolbar_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(p0: AdapterView<*>?) {}
 
-            override fun onItemSelected(adapterView: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
-                if (position != adapter.count - 1 && !first) {
+            override fun onItemSelected(adapterView: AdapterView<*>?, p1: View?, position: Int, id: Long) {
+                if (id == SPINNER_ID_ADD_LOCKER) {
+                    LockerCreateDialogFragment().show(supportFragmentManager, "create_locker")
+                } else if (!first) {
                     userService.selectLocker(adapter.getRef(position).key!!)
                 } else {
                     first = false

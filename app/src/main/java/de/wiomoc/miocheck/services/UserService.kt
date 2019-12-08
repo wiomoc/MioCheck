@@ -1,5 +1,6 @@
 package de.wiomoc.miocheck.services
 
+import android.util.Base64
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -68,6 +69,23 @@ class UserService(
     fun acceptInvitation(invitationCode: String) = functions
         .getHttpsCallable("acceptInvitation")
         .call(mapOf("invitationCode" to invitationCode))
+        .addOnSuccessListener {
+            val data = it.data
+            if (data is Map<*, *>) {
+                val lockerId = data["lockerId"]
+                selectLocker(lockerId!!.toString())
+            }
+        }
+
+    fun createLocker(name: String, pin: String, image: ByteArray?) = functions
+        .getHttpsCallable("createLocker")
+        .call(
+            mapOf(
+                "name" to name,
+                "pin" to pin,
+                "image" to Base64.encodeToString(image, Base64.NO_WRAP)
+            )
+        )
         .addOnSuccessListener {
             val data = it.data
             if (data is Map<*, *>) {

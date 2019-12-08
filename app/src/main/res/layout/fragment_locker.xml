@@ -21,12 +21,12 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="4" />
+            tools:text="4"/>
     <TextView
             android:text="@string/locker_available"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/label_available_label" app:layout_constraintEnd_toEndOf="parent"
+            android:id="@+id/locker_available_label" app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginLeft="8dp" android:layout_marginStart="8dp" android:layout_marginTop="8dp"
@@ -42,7 +42,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginEnd="8dp" android:layout_marginRight="8dp"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="8dp"
-            android:layout_marginStart="8dp" app:layout_constraintTop_toBottomOf="@+id/label_available_label"/>
+            android:layout_marginStart="8dp" app:layout_constraintTop_toBottomOf="@+id/locker_available_label"/>
     <TextView
             android:text="@string/locker_credit"
             android:layout_width="wrap_content"
@@ -54,7 +54,7 @@
             app:layout_constraintTop_toBottomOf="@+id/locker_account_credit_txt"/>
 
     <Button
-            android:id="@+id/locker_add_button"
+            android:id="@+id/locker_add_mio_button"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="80dp"
@@ -64,12 +64,12 @@
             android:layout_marginRight="40dp"
             android:text="@string/locker_add"
             android:textSize="30sp"
-            app:layout_constraintEnd_toStartOf="@+id/locker_take_button"
+            app:layout_constraintEnd_toStartOf="@+id/locker_take_mio_button"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/locker_account_credit_label" />
+            app:layout_constraintTop_toBottomOf="@+id/locker_account_credit_label"/>
 
     <Button
-            android:id="@+id/locker_take_button"
+            android:id="@+id/locker_take_mio_button"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="40dp"
@@ -80,8 +80,8 @@
             android:text="@string/locker_take"
             android:textSize="30sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/locker_add_button"
-            app:layout_constraintTop_toBottomOf="@+id/locker_account_credit_label" />
+            app:layout_constraintStart_toEndOf="@+id/locker_add_mio_button"
+            app:layout_constraintTop_toBottomOf="@+id/locker_account_credit_label"/>
 
     <com.db.williamchart.view.LineChartView
             android:id="@+id/locker_history_chart"
@@ -89,12 +89,23 @@
             android:layout_height="0dp"
             android:layout_marginTop="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/locker_take_button"
+            app:layout_constraintTop_toBottomOf="@+id/locker_take_mio_button"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:chart_smoothLine= "true"
+            app:chart_smoothLine="true"
             app:chart_axis="none"
             app:chart_lineColor="#B09841"
             app:chart_lineThickness="3dp"/>
+    <Button
+            android:text="Create Locker"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/locker_create_button"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
+            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp" android:layout_marginTop="8dp"
+            app:layout_constraintTop_toTopOf="parent" android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

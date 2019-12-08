@@ -90,6 +90,9 @@ export const acceptInvitation = functions.region("europe-west1")
         if (!context.auth) return;
 
         const {invitationCode} = data;
+        if (!invitationCode) {
+            return false;
+        }
 
         const uid = context.auth.uid;
 
@@ -128,6 +131,53 @@ export const acceptInvitation = functions.region("europe-west1")
                     .child(lockerId).set(lockerName);
             }));
 
+        await Promise.all(promiseBag);
+
+        return {
+            lockerId
+        };
+    });
+
+export const createLocker = functions.region("europe-west1")
+    .https.onCall(async (data, context) => {
+        if (!context.auth) return;
+        const {name, pin, image} = data;
+        if (!name || !pin) {
+            return false;
+        }
+        const uid = context.auth.uid;
+
+        const locker = await admin.database()
+            .ref("/locker")
+            .push();
+        const lockerId = locker.key;
+        console.log("ID" + lockerId);
+        if (!lockerId) return false;
+
+        const promiseBag = [];
+
+        promiseBag.push(locker.set({
+            name: name,
+            inventory: 0,
+            pin: pin,
+            user: {
+                [uid]: {
+                    role: "ADMIN",
+                    balance: 0
+                }
+            }
+        }));
+
+        promiseBag.push(admin.database()
+            .ref("/account")
+            .child(uid)
+            .child("locker")
+            .child(lockerId).set(name));
+
+        if (image) {
+            promiseBag.push(admin.storage().bucket().file(`images/locker/${lockerId}/profile.webp`)
+                .save(new Buffer(image, 'base64'), {metadata: {contentType: "image/webp"}}));
+        }
         await Promise.all(promiseBag);
 
         return {
