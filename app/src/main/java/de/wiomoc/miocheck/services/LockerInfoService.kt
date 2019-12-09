@@ -1,24 +1,22 @@
 package de.wiomoc.miocheck.services
 
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.functions.FirebaseFunctions
 import java.util.concurrent.TimeUnit
 
-class LockerService(
+class LockerInfoService(
     private val dbReference: DatabaseReference,
     private val functions: FirebaseFunctions,
-    private val userService: UserService,
+    private val lockersService: LockersService,
     private val auth: FirebaseAuth
 ) {
 
     private fun mioTransaction(change: Int) =
         functions.getHttpsCallable("mioTransaction")
             .withTimeout(6, TimeUnit.SECONDS)
-            .call(mapOf("lockerId" to userService.selectedLockerId.value!!, "change" to change))
+            .call(mapOf("lockerId" to lockersService.selectedLockerId.value!!, "change" to change))
 
     fun addMio() = mioTransaction(1)
 
@@ -27,7 +25,7 @@ class LockerService(
     data class HistoryEntry(val timestamp: Long, val inventory: Long)
 
     val lockPin by lazy {
-        Transformations.switchMap(userService.selectedLockerId) { id ->
+        Transformations.switchMap(lockersService.selectedLockerId) { id ->
             dbReference
                 .child("locker")
                 .child(id)
@@ -39,7 +37,7 @@ class LockerService(
     }
 
     val history by lazy {
-        Transformations.switchMap(userService.selectedLockerId) { lockerId ->
+        Transformations.switchMap(lockersService.selectedLockerId) { lockerId ->
             if(lockerId == null) return@switchMap null
             dbReference
                 .child("locker")
@@ -58,7 +56,7 @@ class LockerService(
     }
 
     val inventory by lazy {
-        Transformations.switchMap(userService.selectedLockerId) { lockerId ->
+        Transformations.switchMap(lockersService.selectedLockerId) { lockerId ->
             if(lockerId == null) return@switchMap null
             dbReference
                 .child("locker")
@@ -71,7 +69,7 @@ class LockerService(
     }
 
     val balance by lazy {
-        Transformations.switchMap(userService.selectedLockerId) { lockerId ->
+        Transformations.switchMap(lockersService.selectedLockerId) { lockerId ->
             if(lockerId == null) return@switchMap null
             dbReference
                 .child("locker")

@@ -11,7 +11,7 @@ import com.google.firebase.functions.FirebaseFunctions
 
 typealias LockerId = String
 
-class UserService(
+class LockersService(
     private val dbReference: DatabaseReference,
     private val functions: FirebaseFunctions,
     private val preferenceService: PreferenceService,

@@ -16,12 +16,14 @@ export const sendAvailiablityNotification = functions.region("europe-west1")
         }
     });
 
-export const newAccount = functions.region("europe-west1").auth.user().onCreate(async (user, context) => {
-    await admin.database().ref("/account").child(user.uid).set({
-        balance: 0,
-        name: user.displayName
-    })
-});
+export const newAccount = functions.region("europe-west1")
+    .auth.user().onCreate(async (user, context) => {
+        const name = user.displayName ? user.displayName : (await admin.auth().getUser(user.uid)).displayName;
+
+        await admin.database().ref("/account").child(user.uid).set({
+            name: name
+        })
+    });
 
 export const mioTransaction = functions.region("europe-west1")
     .https.onCall(async (data, context) => {
@@ -105,17 +107,24 @@ export const acceptInvitation = functions.region("europe-west1")
         if (!lockerId) {
             return false;
         }
-        const promiseBag = [];
 
+        const promiseBag = [];
         promiseBag.push(admin.database()
-            .ref("/locker")
-            .child(lockerId)
-            .child("user")
+            .ref("/account")
             .child(uid)
-            .set({
-                role: "NORMAL",
-                balance: 0
-            }));
+            .child("name").once("value")
+            .then(value => value.val())
+            .then(userName =>
+                admin.database()
+                    .ref("/locker")
+                    .child(lockerId)
+                    .child("user")
+                    .child(uid)
+                    .set({
+                        role: "NORMAL",
+                        balance: 0,
+                        name: userName
+                    })));
 
         promiseBag.push(admin.database()
             .ref("/locker")
@@ -151,22 +160,33 @@ export const createLocker = functions.region("europe-west1")
             .ref("/locker")
             .push();
         const lockerId = locker.key;
-        console.log("ID" + lockerId);
         if (!lockerId) return false;
 
-        const promiseBag = [];
+        const invitation = Math.random().toString(36).substring(9);
 
-        promiseBag.push(locker.set({
-            name: name,
-            inventory: 0,
-            pin: pin,
-            user: {
-                [uid]: {
-                    role: "ADMIN",
-                    balance: 0
+        const promiseBag = [];
+        promiseBag.push(admin.database()
+            .ref("/account")
+            .child(uid)
+            .child("name").once("value")
+            .then(value => value.val())
+            .then(userName => locker.set({
+                name: name,
+                inventory: 0,
+                pin: pin,
+                invitation: invitation,
+                user: {
+                    [uid]: {
+                        role: "ADMIN",
+                        balance: 0,
+                        name: userName
+                    }
                 }
-            }
-        }));
+            })));
+
+        promiseBag.push(admin.database()
+            .ref("/invitation")
+            .child(invitation).set(lockerId));
 
         promiseBag.push(admin.database()
             .ref("/account")

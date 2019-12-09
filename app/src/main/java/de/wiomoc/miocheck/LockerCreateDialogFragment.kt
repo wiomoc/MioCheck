@@ -8,26 +8,21 @@ import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import android.graphics.BitmapFactory
-import android.net.Uri
-import kotlinx.android.synthetic.main.dialog_locker_create.*
-import android.provider.MediaStore
 import android.widget.EditText
-import androidx.annotation.IntegerRes
-import androidx.core.graphics.scale
-import de.wiomoc.miocheck.services.UserService
+import de.wiomoc.miocheck.services.LockersService
 import org.koin.android.ext.android.inject
 import java.io.ByteArrayOutputStream
 
 
 class LockerCreateDialogFragment : DialogFragment() {
-    val RC_IMAGE = 2
+    private val RC_IMAGE = 2
     lateinit var imageView: ImageView
     var image: Bitmap? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val view = activity!!.layoutInflater.inflate(R.layout.dialog_locker_create, null)
 
-        imageView = view.findViewById<ImageView>(R.id.locker_create_image)
+        imageView = view.findViewById(R.id.locker_create_image)
         imageView.setOnClickListener {
             startActivityForResult(Intent.createChooser(Intent().apply {
                 type = "image/*"
@@ -48,8 +43,8 @@ class LockerCreateDialogFragment : DialogFragment() {
                 val name = view.findViewById<EditText>(R.id.locker_create_name_txt).text.toString()
                 val pin = view.findViewById<EditText>(R.id.locker_create_code_txt).text.toString()
 
-                val userService by inject<UserService>()
-                userService.createLocker(name, pin, compressedImage).addOnCompleteListener {
+                val lockersService by inject<LockersService>()
+                lockersService.createLocker(name, pin, compressedImage).addOnCompleteListener {
                     dialogInterface.dismiss()
                 }
             }

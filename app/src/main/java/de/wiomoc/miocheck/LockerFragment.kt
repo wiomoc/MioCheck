@@ -6,17 +6,14 @@ import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import de.wiomoc.miocheck.services.LockerId
-import de.wiomoc.miocheck.services.LockerService
-import de.wiomoc.miocheck.services.PushMessageService
-import de.wiomoc.miocheck.services.UserService
+import de.wiomoc.miocheck.services.*
 import kotlinx.android.synthetic.main.fragment_locker.*
 import org.koin.android.ext.android.inject
 
 class LockerFragment : Fragment(), NetworkErrorSnackbarMixin {
 
-    private val lockerService by inject<LockerService>()
-    private val userService by inject<UserService>()
+    private val lockersService by inject<LockersService>()
+    private val lockerInfoService by inject<LockerInfoService>()
     private val notificationService by inject<PushMessageService>()
 
     private val INVENTORY_LOW_TOPIC = "inventoryLow"
@@ -38,7 +35,7 @@ class LockerFragment : Fragment(), NetworkErrorSnackbarMixin {
     override fun onStart() {
         super.onStart()
 
-        if (userService.selectedLockerId.value == null) {
+        if (lockersService.selectedLockerId.value == null) {
             locker_account_credit_label.visibility = View.GONE
             locker_account_credit_txt.visibility = View.GONE
             locker_available_label.visibility = View.GONE
@@ -49,7 +46,7 @@ class LockerFragment : Fragment(), NetworkErrorSnackbarMixin {
             locker_create_button.setOnClickListener {
                 LockerCreateDialogFragment().show(fragmentManager!!, "create_locker")
             }
-            userService.selectedLockerId.observe(this, object: Observer<LockerId> {
+            lockersService.selectedLockerId.observe(this, object: Observer<LockerId> {
                 override fun onChanged(lockerId: LockerId?) {
                     if(lockerId != null) {
                         locker_account_credit_label.visibility = View.VISIBLE
@@ -62,28 +59,28 @@ class LockerFragment : Fragment(), NetworkErrorSnackbarMixin {
                         menu?.findItem(R.id.fragment_locker_menu_alarm)?.isVisible = true
                         menu?.findItem(R.id.fragment_locker_menu_info)?.isVisible = true
                         updateAlertMenuItem()
-                        userService.selectedLockerId.removeObserver(this)
+                        lockersService.selectedLockerId.removeObserver(this)
                     }
                 }
             })
         }
 
         val takeButton = locker_take_mio_button
-        lockerService.balance.observe(this, Observer<Long> {
+        lockerInfoService.balance.observe(this, Observer<Long> {
             view!!.findViewById<TextView>(R.id.locker_account_credit_txt).text = it.toString()
         })
 
-        lockerService.inventory.observe(this, Observer<Long> {
+        lockerInfoService.inventory.observe(this, Observer<Long> {
             view!!.findViewById<TextView>(R.id.locker_available_txt).text = it.toString()
             takeButton.isEnabled = it > 0
         })
 
         takeButton.setOnClickListener {
-            lockerService.takeMio().addOnFailureListener(this)
+            lockerInfoService.takeMio().addOnFailureListener(this)
         }
 
         locker_add_mio_button.setOnClickListener {
-            lockerService.addMio().addOnFailureListener(this)
+            lockerInfoService.addMio().addOnFailureListener(this)
         }
 
         locker_history_chart.apply {
@@ -94,7 +91,7 @@ class LockerFragment : Fragment(), NetworkErrorSnackbarMixin {
                     Color.TRANSPARENT
                 )
 
-            lockerService.history.observe(this@LockerFragment, Observer<List<LockerService.HistoryEntry>> { history ->
+            lockerInfoService.history.observe(this@LockerFragment, Observer<List<LockerInfoService.HistoryEntry>> { history ->
                 val lineSet = linkedMapOf<String, Float>()
                 history.map { it.timestamp.toString() to it.inventory.toFloat() }
                     .toMap(lineSet)
@@ -107,7 +104,7 @@ class LockerFragment : Fragment(), NetworkErrorSnackbarMixin {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.fragment_locker, menu)
         this.menu = menu
-        if (userService.selectedLockerId.value == null) {
+        if (lockersService.selectedLockerId.value == null) {
             menu.findItem(R.id.fragment_locker_menu_alarm).isVisible = false
             menu.findItem(R.id.fragment_locker_menu_info).isVisible = false
         } else {

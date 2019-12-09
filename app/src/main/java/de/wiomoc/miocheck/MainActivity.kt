@@ -21,7 +21,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import de.wiomoc.miocheck.services.ConnectionService
 import de.wiomoc.miocheck.services.LockerId
-import de.wiomoc.miocheck.services.UserService
+import de.wiomoc.miocheck.services.LockersService
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.android.ext.android.inject
 import kotlin.math.min
@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
     val RC_SIGN_IN = 1
     val SPINNER_ID_ADD_LOCKER = 0L
 
-    val userService by inject<UserService>()
+    val lockersService by inject<LockersService>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,9 +40,9 @@ class MainActivity : AppCompatActivity() {
 
         val connectionService by inject<ConnectionService>()
 
-        connectionService.onConnected(this) {
+        connectionService.connected.observe(this, Observer {
             toolbar_progress.visibility = if (it) View.GONE else View.VISIBLE
-        }
+        })
 
         pager.adapter =
             object : FragmentStatePagerAdapter(
@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity() {
         if (pathSegments[0] != "i") return
         val invitationCode = pathSegments[1]
 
-        userService.acceptInvitation(invitationCode).addOnSuccessListener {
+        lockersService.acceptInvitation(invitationCode).addOnSuccessListener {
             Snackbar.make(coordinator, R.string.snackbar_joined_locker, Snackbar.LENGTH_SHORT).show()
         }
     }
@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createToolbarInvolvedLockerSpinner() {
-        val involvedLockers = userService.getInvolvedLockers() ?: return
+        val involvedLockers = lockersService.getInvolvedLockers() ?: return
 
         val adapter = object : FirebaseListAdapter<String>(
             FirebaseListOptions.Builder<String>()
@@ -112,7 +112,7 @@ class MainActivity : AppCompatActivity() {
             override fun onDataChanged() {
                 super.onDataChanged()
                 if (super.getCount() > 0) {
-                    updateToolbarSelection(this, userService.selectedLockerId.value)
+                    updateToolbarSelection(this, lockersService.selectedLockerId.value)
                     toolbar_spinner.visibility = View.VISIBLE
                     supportActionBar!!.setDisplayShowTitleEnabled(false)
 
@@ -154,7 +154,7 @@ class MainActivity : AppCompatActivity() {
 
         toolbar_spinner.adapter = adapter
 
-        userService.selectedLockerId.observe(this,
+        lockersService.selectedLockerId.observe(this,
             Observer<LockerId> { id -> updateToolbarSelection(adapter, id) })
 
         // onItemSelected is called automatically at start. Use `first` to check if onItemSelected is
@@ -167,7 +167,7 @@ class MainActivity : AppCompatActivity() {
                 if (id == SPINNER_ID_ADD_LOCKER) {
                     LockerCreateDialogFragment().show(supportFragmentManager, "create_locker")
                 } else if (!first) {
-                    userService.selectLocker(adapter.getRef(position).key!!)
+                    lockersService.selectLocker(adapter.getRef(position).key!!)
                 } else {
                     first = false
                 }
@@ -178,15 +178,16 @@ class MainActivity : AppCompatActivity() {
     private fun navigateToLoginIfNecessary() {
         if (FirebaseAuth.getInstance().currentUser == null) {
             val providers = arrayListOf(
-                AuthUI.IdpConfig.EmailBuilder().build(),
+                AuthUI.IdpConfig.EmailBuilder().setRequireName(true).build(),
                 AuthUI.IdpConfig.PhoneBuilder().build(),
-                AuthUI.IdpConfig.GoogleBuilder().build()
+                AuthUI.IdpConfig.GoogleBuilder().setScopes(listOf("profile")).build()
             )
 
             startActivityForResult(
                 AuthUI.getInstance()
                     .createSignInIntentBuilder()
                     .setAvailableProviders(providers)
+                    .setLogo(R.drawable.ic_launcher_foreground)
                     .build(),
                 RC_SIGN_IN
             )

@@ -15,7 +15,6 @@ import kotlinx.android.synthetic.main.fragment_availability.*
 import org.koin.android.ext.android.inject
 import java.text.DateFormat
 
-
 class AvailabilityFragment : Fragment(), NetworkErrorSnackbarMixin {
     lateinit var adapter: FirebaseListAdapter<ShopStatus>
 
